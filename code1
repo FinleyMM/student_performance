@@ -1,961 +1,143 @@
-import pandas as pd
+#import dataset and name accordingly
+
+# 1. Imports
 import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-
-data = pd.read_csv("MachLearnData.csv")
-
-from sklearn.ensemble import RandomForestClassifier
-
-#Encode categorical variables
-label_encoder = LabelEncoder()
-categorical_columns = ['sex', 'address', 'school', 'famsize', 'Pstatus', 'Mjob', 'Fjob',
-                       'reason', 'guardian', 'schoolsup', 'famsup', 'paid',
-                       'activities', 'nursery', 'higher', 'internet', 'romantic']
-
-data[categorical_columns] = data[categorical_columns].apply(label_encoder.fit_transform)
-
-#Split data into features and target variable
-X = data.drop(columns=['G3'])  # Features
-y = data['G3']  # Target variable
-
-#Create a random forest classifier
-clf = RandomForestClassifier(n_estimators=100, random_state=42)
-
-#Train the classifier
-clf.fit(X, y)
-
-#Get feature importances
-gini_importance = clf.feature_importances_
-
-#Create a dictionary to store feature names and their corresponding importance scores
-feature_importance_dict = {feature: importance for feature, importance in zip(X.columns, gini_importance)}
-
-#Sort feature importance dictionary by importance scores (from highest to lowest)
-sorted_feature_importance = sorted(feature_importance_dict.items(), key=lambda x: x[1], reverse=True)
-
-#Print sorted feature importance
-for feature, importance in sorted_feature_importance:
-    print(f"{feature}: {importance}")
-
-from sklearn.ensemble import RandomForestClassifier
-
-#Encode categorical variables
-label_encoder = LabelEncoder()
-categorical_columns = ['sex', 'address', 'school', 'famsize', 'Pstatus', 'Mjob', 'Fjob',
-                       'reason', 'guardian', 'schoolsup', 'famsup', 'paid',
-                       'activities', 'nursery', 'higher', 'internet', 'romantic']
-
-data[categorical_columns] = data[categorical_columns].apply(label_encoder.fit_transform)
-
-#Split data into features and target variable
-X = data.drop(columns=['G3'])  # Features
-y = data['G3']  # Target variable
-
-#Create a random forest classifier
-clf = RandomForestClassifier(n_estimators=100, random_state=42)
-
-#Train the classifier
-clf.fit(X, y)
-
-#Get feature importances
-gini_importance = clf.feature_importances_
-
-#Create a dictionary to store feature names and their corresponding importance scores
-feature_importance_dict = {feature: importance for feature, importance in zip(X.columns, gini_importance)}
-
-#Sort feature importance dictionary by importance scores (from highest to lowest)
-sorted_feature_importance = sorted(feature_importance_dict.items(), key=lambda x: x[1], reverse=True)
-
-#Print sorted feature importance
-for feature, importance in sorted_feature_importance:
-    print(f"{feature}: {importance}")
-
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-
-#Split data into features and target variable
-X = data.drop(columns=['G3'])
-y = data['G3']
-
-#Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#Train the KNN model
-knn_model = KNeighborsClassifier(n_neighbors=19)
-knn_model.fit(X_train, y_train)
-
-#Make predictions on the testing data
-y_pred = knn_model.predict(X_test)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-
-#Print classification report
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-#Print confusion matrix
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-
-
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-
-#Split data into features and target variable
-X = data.drop(columns=['G3'])
-y = data['G3']
-
-#Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#Train the KNN model
-knn_model = KNeighborsClassifier(n_neighbors=19)
-knn_model.fit(X_train, y_train)
-
-#Make predictions on the testing data
-y_pred = knn_model.predict(X_test)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-
-#Print classification report
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-#Print confusion matrix
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-
-
-import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
+import seaborn as sns
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-
-#Define preprocessing steps
-preprocessor = Pipeline(steps=[
-    ('scaler', StandardScaler())
-])
-
-#Number of principal components
-n_components = 10
-
-#Apply preprocessing and PCA
-pipeline = Pipeline(steps=[
-    ('preprocessor', preprocessor),
-    ('pca', PCA(n_components=n_components))
-])
-
-#Fit and transform the data
-transformed_data = pipeline.fit_transform(data)
-
-#Scree plot
-pca = pipeline.named_steps['pca']
-plt.figure(figsize=(8, 6))
-plt.plot(range(1, pca.n_components_ + 1), pca.explained_variance_ratio_, marker='o', linestyle='-')
-plt.title('Scree Plot')
-plt.xlabel('Principal Component')
-plt.ylabel('Variance')
-plt.xticks(range(1, pca.n_components_ + 1))
-plt.show()
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score
-
-# Load dataset into the variable 'numeric_data'
-numeric_data = data  # Replace 'data' with your dataset variable
-
-# Drop non-numeric columns or handle them appropriately
-numeric_data = numeric_data.select_dtypes(include=['float64', 'int64'])
-
-# Standardize the data (important for PCA)
-scaler = StandardScaler()
-scaled_data = scaler.fit_transform(numeric_data)
-
-# Perform PCA
-pca = PCA(n_components=15)  # Change n_components accordingly
-pca_data = pca.fit_transform(scaled_data)
-
-# Set up subplots
-fig, axs = plt.subplots(2, 3, figsize=(18, 12))
-
-# Different values of K
-for k, ax in zip(range(2, 8), axs.flatten()):  # Adjust the range of K as needed
-    # Perform KMeans clustering
-    kmeans = KMeans(n_clusters=k, random_state=42)
-    kmeans.fit(scaled_data)
-    cluster_labels = kmeans.labels_
-
-    # Calculate silhouette score
-    silhouette_avg = silhouette_score(scaled_data, cluster_labels)
-
-    # Scatter plot of clustered data points
-    ax.scatter(pca_data[:, 0], pca_data[:, 1], c=cluster_labels, cmap='viridis', label='Data Points', alpha=0.7)
-
-    # Scatter plot of centroids
-    centroids = kmeans.cluster_centers_
-    ax.scatter(centroids[:, 0], centroids[:, 1], marker='x', s=100, c='red', label='Centroids', linewidths=2)
-
-    ax.set_xlabel('Principal Component 1', fontsize=12)
-    ax.set_ylabel('Principal Component 2', fontsize=12)
-    ax.set_title(f'KMeans Clustering with K={k}\nSilhouette Score: {silhouette_avg:.4f}', fontsize=14)
-    ax.legend(fontsize=10)
-
-plt.tight_layout()
-plt.show()
-
-
-import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import linkage, fcluster
-from sklearn.metrics import silhouette_score
-
-#Define a range of k values
-k_values = range(2, 11)  # Adjust the range as needed
-
-#Compute silhouette score for each k
-silhouette_scores = []
-for k in k_values:
-    #Perform hierarchical clustering
-    linked = linkage(data_scaled, method='average', metric='euclidean')
-    cluster_labels = fcluster(linked, k, criterion='maxclust')
-
-    #Compute silhouette score
-    silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-    silhouette_scores.append(silhouette_avg)
-
-#Plot silhouette scores
-plt.figure(figsize=(10, 6))
-plt.plot(k_values, silhouette_scores, marker='o')
-plt.title('Silhouette Score vs. Number of Clusters')
-plt.xlabel('Number of Clusters (k)')
-plt.ylabel('Silhouette Score')
-plt.xticks(k_values)
-plt.grid(True)
-plt.show()
-
-
-import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import linkage, fcluster
-from sklearn.metrics import silhouette_score
-
-#Define a range of k values
-k_values = range(2, 11)  # Adjust the range as needed
-
-#Compute silhouette score for each k
-silhouette_scores = []
-for k in k_values:
-    #Perform hierarchical clustering
-    linked = linkage(data_scaled, method='average', metric='euclidean')
-    cluster_labels = fcluster(linked, k, criterion='maxclust')
-
-    #Compute silhouette score
-    silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-    silhouette_scores.append(silhouette_avg)
-
-#Plot silhouette scores
-plt.figure(figsize=(10, 6))
-plt.plot(k_values, silhouette_scores, marker='o')
-plt.title('Silhouette Score vs. Number of Clusters')
-plt.xlabel('Number of Clusters (k)')
-plt.ylabel('Silhouette Score')
-plt.xticks(k_values)
-plt.grid(True)
-plt.show()
-
-
-import matplotlib.pyplot as plt
-from scipy.cluster.hierarchy import linkage, fcluster
-from sklearn.metrics import silhouette_score
-
-#Define a range of k values
-k_values = range(2, 11)  # Adjust the range as needed
-
-#Compute silhouette score for each k
-silhouette_scores = []
-for k in k_values:
-    #Perform hierarchical clustering
-    linked = linkage(data_scaled, method='average', metric='euclidean')
-    cluster_labels = fcluster(linked, k, criterion='maxclust')
-
-    #Compute silhouette score
-    silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-    silhouette_scores.append(silhouette_avg)
-
-#Plot silhouette scores
-plt.figure(figsize=(10, 6))
-plt.plot(k_values, silhouette_scores, marker='o')
-plt.title('Silhouette Score vs. Number of Clusters')
-plt.xlabel('Number of Clusters (k)')
-plt.ylabel('Silhouette Score')
-plt.xticks(k_values)
-plt.grid(True)
-plt.show()
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import PolynomialFeatures, KBinsDiscretizer, StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from scipy.cluster.hierarchy import dendrogram, linkage
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-
-#Sample a subset of observations
-sample_size = 50  # Adjust as needed
-data_sampled = data.sample(n=sample_size, random_state=42)
-
-#Define feature engineering pipeline
-feature_engineering_pipeline = Pipeline([
-    ('scaling', StandardScaler()),  # Standardize features
-    ('polynomial_features', PolynomialFeatures(degree=2)),  # enerate polynomial features
-    ('binning', ColumnTransformer([
-        ('kbins', KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform'), [0, 1])
-    ], remainder='passthrough'))  # Bin selected features
-])
-
-#Apply feature engineering pipeline to data
-data_engineered = feature_engineering_pipeline.fit_transform(data_numeric)
-data_engineered_df = pd.DataFrame(data_engineered)
-
-#Standardize the data
-scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data_numeric)
-
-#Perform hierarchical clustering
-method = 'complete'  # Using 'complete' linkage method
-distance = 'euclidean'  # Using Euclidean distance metric
-linked = linkage(data_scaled, method=method, metric=distance)
-
-#Plot complete dendrogram
-plt.figure(figsize=(15, 10))
-plt.title('Hierarchical Clustering Dendrogram - Method: Complete, Distance: Euclidean', fontsize=16)
-dendrogram(linked, orientation='top', distance_sort='descending', show_leaf_counts=True, leaf_font_size=12)
-
-#Add cutoff points
-cutoffs = [9, 12]  # Adjust cutoff distances as needed
-colors = ['r', 'g']  # Colors for the cutoff lines
-for cutoff, color in zip(cutoffs, colors):
-    plt.axhline(y=cutoff, color=color, linestyle='--', linewidth=3)
-
-#Enhancements for aesthetics
-plt.xlabel('Observation Index', fontsize=14)
-plt.ylabel('Distance', fontsize=14)
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.grid(False)
-plt.tight_layout()  # Adjust layout
-plt.show()
-
-#Perform KMeans clustering
-kmeans = KMeans(n_clusters=3, random_state=42)  # Adjust the number of clusters as needed
-kmeans.fit(data_scaled)
-cluster_labels = kmeans.labels_
-
-#Compute silhouette score
-silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-print(f"Silhouette Score: {silhouette_avg}")
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import PolynomialFeatures, KBinsDiscretizer, StandardScaler
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from scipy.cluster.hierarchy import dendrogram, linkage
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-
-#Sample a subset of observations
-sample_size = 50  # Adjust as needed
-data_sampled = data.sample(n=sample_size, random_state=42)
-
-#Define feature engineering pipeline
-feature_engineering_pipeline = Pipeline([
-    ('scaling', StandardScaler()),  # Standardize features
-    ('polynomial_features', PolynomialFeatures(degree=2)),  # enerate polynomial features
-    ('binning', ColumnTransformer([
-        ('kbins', KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='uniform'), [0, 1])
-    ], remainder='passthrough'))  # Bin selected features
-])
-
-#Apply feature engineering pipeline to data
-data_engineered = feature_engineering_pipeline.fit_transform(data_numeric)
-data_engineered_df = pd.DataFrame(data_engineered)
-
-#Standardize the data
-scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data_numeric)
-
-#Perform hierarchical clustering
-method = 'complete'  # Using 'complete' linkage method
-distance = 'euclidean'  # Using Euclidean distance metric
-linked = linkage(data_scaled, method=method, metric=distance)
-
-#Plot complete dendrogram
-plt.figure(figsize=(15, 10))
-plt.title('Hierarchical Clustering Dendrogram - Method: Complete, Distance: Euclidean', fontsize=16)
-dendrogram(linked, orientation='top', distance_sort='descending', show_leaf_counts=True, leaf_font_size=12)
-
-#Add cutoff points
-cutoffs = [9, 12]  # Adjust cutoff distances as needed
-colors = ['r', 'g']  # Colors for the cutoff lines
-for cutoff, color in zip(cutoffs, colors):
-    plt.axhline(y=cutoff, color=color, linestyle='--', linewidth=3)
-
-#Enhancements for aesthetics
-plt.xlabel('Observation Index', fontsize=14)
-plt.ylabel('Distance', fontsize=14)
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.grid(False)
-plt.tight_layout()  # Adjust layout
-plt.show()
-
-#Perform KMeans clustering
-kmeans = KMeans(n_clusters=3, random_state=42)  # Adjust the number of clusters as needed
-kmeans.fit(data_scaled)
-cluster_labels = kmeans.labels_
-
-#Compute silhouette score
-silhouette_avg = silhouette_score(data_scaled, cluster_labels)
-print(f"Silhouette Score: {silhouette_avg}")
-
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
-
-#Encode categorical variables
-label_encoder = LabelEncoder()
-data_encoded = data.apply(label_encoder.fit_transform)
-
-#Split data into features (X) and target variable (y)
-X = data_encoded.drop(columns=['G3'])  # Features
-y = data_encoded['G3']  # Target variable
-
-#Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-#Test different values of n_neighbors, can adjust range
-neighbor_values = range(1, 20)
-accuracies = [accuracy_score(y_test, KNeighborsClassifier(n_neighbors=n, metric='euclidean').fit(X_train, y_train).predict(X_test)) for n in neighbor_values]
-
-#Visualize accuracies
-plt.figure(figsize=(10, 6))
-plt.plot(neighbor_values, accuracies, marker='o', linestyle='-')
-plt.title('Accuracy vs. Number of Neighbors', fontsize=14)
-plt.xlabel('Number of Neighbors', fontsize=12)
-plt.ylabel('Accuracy', fontsize=12)
-plt.xticks(neighbor_values)
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score
-
-#Assuming 'data' is your pandas DataFrame containing your dataset
-X = data[['G1','G2']]  # Features
-y = data['G3']  # Target variable
-
-# efine range of k values to try
-k_values = range(1, 20)
-
-#Calculate mean cross-validation scores for each k value
-mean_scores = [np.mean(cross_val_score(KNeighborsClassifier(n_neighbors=k), X, y, cv=5)) for k in k_values]
-
-#Plot mean cross-validation scores
-plt.plot(k_values, mean_scores, marker='o')
-plt.xlabel('Number of Neighbors (k)')
-plt.ylabel('Mean Cross-Validation Accuracy')
-plt.title('Cross-Validation Performance for Different k Values')
-plt.grid(True)
-plt.show()
-
-#Find the best k value
-best_k = k_values[np.argmax(mean_scores)]
-print(f'Best k value: {best_k}')
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-#Reduce dimensionality for visualization using PCA
-pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_scaled)
-
-#Train the SVM model on the reduced data with regularization (C=1)
-svm_model = SVC(kernel='rbf', gamma=0.1, C=10)
-svm_model.fit(X_pca, y)
-
-#Create a meshgrid for decision boundary
-h = 0.1  # step size in the mesh
-x_min, x_max = X_pca[:, 0].min() - 1, X_pca[:, 0].max() + 1
-y_min, y_max = X_pca[:, 1].min() - 1, X_pca[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-Z = svm_model.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
-
-#Plot decision boundary and data points
-plt.figure(figsize=(10, 8))
-plt.contourf(xx, yy, Z, cmap=plt.cm.coolwarm, alpha=0.8, levels=np.linspace(Z.min(), Z.max(), 4))
-
-#Plot data points with improved aesthetics
-plt.scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap=plt.cm.coolwarm, linewidths=0.5)
-plt.xlabel('Principal Component 1', fontsize=12)
-plt.ylabel('Principal Component 2', fontsize=12)
-plt.title('SVM Decision Boundary with PCA (Regularised)', fontsize=14)
-plt.colorbar(label='G3', ticks=np.unique(y))
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-#Make predictions on the reduced data
-y_pred = svm_model.predict(X_pca)
-
-#Compute evaluation metrics
-accuracy = accuracy_score(y, y_pred)
-precision = precision_score(y, y_pred, average='weighted')
-recall = recall_score(y, y_pred, average='weighted')
-f1 = f1_score(y, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1 Score:", f1)
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.model_selection import GridSearchCV, cross_val_score
-
-#Reduce dimensionality for visualization using PCA
-pca = PCA(n_components=2)
-X_pca = pca.fit_transform(X_scaled)
-
-#Define the parameter grid for grid search
-param_grid = {
-    'C': [0.1, 1, 10],
-    'gamma': [0.1, 1, 10],
-    'kernel': ['rbf', 'linear', 'poly']}
-
-#Initialize SVM classifier
-svm_model = SVC()
-
-#Perform grid search
-grid_search = GridSearchCV(svm_model, param_grid, cv=5, scoring='accuracy')
-grid_search.fit(X_pca, y)
-
-#Get the best parameters
-best_params = grid_search.best_params_
-print("Best Parameters:", best_params)
-
-#Evaluate the best model using cross-validation
-best_model = grid_search.best_estimator_
-cv_scores = cross_val_score(best_model, X_pca, y, cv=5, scoring='accuracy')
-
-#Print the cross-validation scores
-print("Cross-Validation Scores:", cv_scores)
-print("Mean CV Accuracy:", np.mean(cv_scores))
-
-#Make predictions on the reduced data
-y_pred = best_model.predict(X_pca)
-
-#Compute evaluation metrics
-accuracy_svm = accuracy_score(y, y_pred)
-precision_svm = precision_score(y, y_pred, average='weighted')
-recall_svm = recall_score(y, y_pred, average='weighted')
-f1_svm = f1_score(y, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy_svm)
-print("Precision:", precision_svm)
-print("Recall:", recall_svm)
-print("F1 Score:", f1_svm)
-
-
-
-import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
 from matplotlib.colors import ListedColormap
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-#Split the data into features (X) and target variable (y)
-X = data[['G1', 'G2']]  # Replace with appropriate column names
-y = data['G3']  # Target variable
 
-#Scale the data
+# 2. Data Preparation
+# Split data into features (X) and target (y)
+X = data[['G1', 'G2']]  # Use relevant columns
+y = data['G3']
+
+# Scale features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-#Split the scaled data into training and testing sets
+# Split into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-#Train the KNN model
-knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)  # Set the desired parameters
+
+# 3. KNN Model Training and Decision Boundary Plotting
+knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)
 knn_model.fit(X_train, y_train)
 
-#Plot decision boundary
+# Plot decision boundary
 x_min, x_max = X_scaled[:, 0].min() - 1, X_scaled[:, 0].max() + 1
 y_min, y_max = X_scaled[:, 1].min() - 1, X_scaled[:, 1].max() + 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
+
 Z = knn_model.predict(np.c_[xx.ravel(), yy.ravel()])
 Z = Z.reshape(xx.shape)
 
-#Create color map
 cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
 cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
 
-#Plot decision boundary and data points
 plt.figure(figsize=(10, 8))
 plt.contourf(xx, yy, Z, cmap=cmap_light, alpha=0.8)
-
-#Plot training points
 plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cmap_bold, edgecolors='k', s=60, label='Training Data')
-#Plot testing points
 plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cmap_bold, edgecolors='k', marker='x', s=100, label='Testing Data')
 
 plt.xlabel('G1')
 plt.ylabel('G2')
-plt.title('KNN Decision Boundary With PCA')
+plt.title('KNN Decision Boundary')
 plt.colorbar(label='G3')
 plt.legend()
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.show()
 
-#Make predictions on the test set
-y_pred = knn_model.predict(X_test)
 
-#Calculate evaluation metrics
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1 Score:", f1)
-
-
-
-#Import necessary libraries
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-#Split the data into features (X) and target variable (y)
-X = data[['G1', 'G2']]  # Replace with appropriate column names
-y = data['G3']  # Target variable
-
-# cale the data
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-#Split the scaled data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-#Train the KNN model
-knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)  # Set the desired parameters
-knn_model.fit(X_train, y_train)
-
-#Train the SVM model
-svm_model = SVC(kernel='rbf',gamma=0.1, C=10)
+# 4. Train and Evaluate KNN and SVM Models
+# Train SVM model
+svm_model = SVC(kernel='rbf', gamma=0.1, C=10)
 svm_model.fit(X_train, y_train)
 
-#Make predictions on the test set
+# Make predictions
 y_pred_knn = knn_model.predict(X_test)
 y_pred_svm = svm_model.predict(X_test)
 
-#Calculate evaluation metrics for KNN
-accuracy_knn = accuracy_score(y_test, y_pred_knn)
-precision_knn = precision_score(y_test, y_pred_knn, average='weighted')
-recall_knn = recall_score(y_test, y_pred_knn, average='weighted')
-f1_knn = f1_score(y_test, y_pred_knn, average='weighted')
+# Evaluation metrics function
+def evaluate_model(y_true, y_pred, model_name):
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average='weighted')
+    recall = recall_score(y_true, y_pred, average='weighted')
+    f1 = f1_score(y_true, y_pred, average='weighted')
+    print(f"\n{model_name} Performance:")
+    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Precision: {precision:.4f}")
+    print(f"Recall: {recall:.4f}")
+    print(f"F1 Score: {f1:.4f}")
+    return accuracy, precision, recall, f1
 
-#Calculate evaluation metrics for SVM
-accuracy_svm = accuracy_score(y_test, y_pred_svm)
-precision_svm = precision_score(y_test, y_pred_svm, average='weighted')
-recall_svm = recall_score(y_test, y_pred_svm, average='weighted')
-f1_svm = f1_score(y_test, y_pred_svm, average='weighted')
+knn_metrics = evaluate_model(y_test, y_pred_knn, "KNN")
+svm_metrics = evaluate_model(y_test, y_pred_svm, "SVM")
 
-#Define the metrics and corresponding values
+
+# 5. Performance Comparison Bar Plot
 metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
-knn_values = [accuracy_knn, precision_knn, recall_knn, f1_knn]
-svm_values = [accuracy_svm, precision_svm, recall_svm, f1_svm]
+knn_values = knn_metrics
+svm_values = svm_metrics
 
-#Plotting
 plt.figure(figsize=(10, 6))
-
-#Plot KNN metrics
 bar_width = 0.35
+
 plt.bar(np.arange(len(metrics)), knn_values, bar_width, color='red', alpha=0.6, label='KNN')
-#Plot numerical values on KNN bars
-for i, value in enumerate(knn_values):
-    plt.text(i, value + 0.02, str(round(value, 2)), ha='center', va='bottom')
-
-#Plot SVM metrics
 plt.bar(np.arange(len(metrics)) + bar_width, svm_values, bar_width, color='navy', alpha=0.6, label='SVM')
-#Plot numerical values on SVM bars
-for i, value in enumerate(svm_values):
-    plt.text(i + bar_width, value + 0.02, str(round(value, 2)), ha='center', va='bottom')
 
-#Add labels, title, legend, and grid
+for i, value in enumerate(knn_values):
+    plt.text(i, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
+for i, value in enumerate(svm_values):
+    plt.text(i + bar_width, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
+
 plt.xlabel('Metrics')
 plt.ylabel('Score')
-plt.title('Performance Comparison: KNN vs SVM')
+plt.title('KNN vs SVM Performance Comparison')
 plt.xticks(np.arange(len(metrics)) + bar_width / 2, metrics)
-plt.ylim(0, 1)  # Set y-axis limit to range from 0 to 1
+plt.ylim(0, 1)
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.5)
-
-#Show the plot
+plt.tight_layout()
 plt.show()
 
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-#Split the data into features (X) and target variable (y)
-X = data[['G1', 'G2']]  # Replace with appropriate column names
-y = data['G3']  # Target variable
-
-#Scale the data
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-#Split the scaled data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-#Define the parameter grid for hyperparameter tuning
-param_grid = {'n_neighbors': [3, 5, 7, 9, 11, 14, 19]}  # Define different values for n_neighbors
-
-#Initialize KNN classifier
-knn_model = KNeighborsClassifier()
-
-#Perform grid search with cross-validation
-grid_search = GridSearchCV(knn_model, param_grid, cv=5)
-grid_search.fit(X_train, y_train)
-
-#Get the best hyperparameters
-best_n_neighbors = grid_search.best_params_['n_neighbors']
-
-#Train the KNN model with the best hyperparameters
-best_knn_model = KNeighborsClassifier(n_neighbors=best_n_neighbors)
-best_knn_model.fit(X_train, y_train)
-
-#Make predictions on the test set
-y_pred = best_knn_model.predict(X_test)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1 Score:", f1)
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-#Split the data into features (X) and target variable (y)
-X = data[['G1', 'G2']]  # Replace with appropriate column names
-y = data['G3']  # Target variable
-
-#Scale the data
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-#Split the scaled data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-#Define the parameter grid for hyperparameter tuning
-param_grid = {'n_neighbors': [3, 5, 7, 9, 11, 14, 19]}  # Define different values for n_neighbors
-
-#Initialize KNN classifier
-knn_model = KNeighborsClassifier()
-
-#Perform grid search with cross-validation
-grid_search = GridSearchCV(knn_model, param_grid, cv=5)
-grid_search.fit(X_train, y_train)
-
-#Get the best hyperparameters
-best_n_neighbors = grid_search.best_params_['n_neighbors']
-
-#Train the KNN model with the best hyperparameters
-best_knn_model = KNeighborsClassifier(n_neighbors=best_n_neighbors)
-best_knn_model.fit(X_train, y_train)
-
-#Make predictions on the test set
-y_pred = best_knn_model.predict(X_test)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1 Score:", f1)
-
-
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
-#Split the data into features (X) and target variable (y)
-X = data[['G1', 'G2']]  # Replace with appropriate column names
-y = data['G3']  # Target variable
-
-#Scale the data
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-#Split the scaled data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-#Define the parameter grid for hyperparameter tuning
-param_grid = {'n_neighbors': [3, 5, 7, 9, 11, 14, 19]}  # Define different values for n_neighbors
-
-#Initialize KNN classifier
-knn_model = KNeighborsClassifier()
-
-#Perform grid search with cross-validation
-grid_search = GridSearchCV(knn_model, param_grid, cv=5)
-grid_search.fit(X_train, y_train)
-
-#Get the best hyperparameters
-best_n_neighbors = grid_search.best_params_['n_neighbors']
-
-#Train the KNN model with the best hyperparameters
-best_knn_model = KNeighborsClassifier(n_neighbors=best_n_neighbors)
-best_knn_model.fit(X_train, y_train)
-
-#Make predictions on the test set
-y_pred = best_knn_model.predict(X_test)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred, average='weighted')
-recall = recall_score(y_test, y_pred, average='weighted')
-f1 = f1_score(y_test, y_pred, average='weighted')
-
-#Print evaluation metrics
-print("Accuracy:", accuracy)
-print("Precision:", precision)
-print("Recall:", recall)
-print("F1 Score:", f1)
-
-
-from sklearn.model_selection import GridSearchCV
-
-#Define the parameter grid
+# 6. Hyperparameter Tuning with Grid Search for KNN
 param_grid = {
-    'n_neighbors': [3, 5, 7, 9],  # Values to try for the number of neighbors
-    'weights': ['uniform', 'distance'],  # Different weighting schemes
-    'p': [1, 2]  # Power parameter for the Minkowski distance metric (1 for Manhattan, 2 for Euclidean)
+    'n_neighbors': [3, 5, 7, 9],
+    'weights': ['uniform', 'distance'],
+    'p': [1, 2]
 }
 
-#Initialize KNN classifier
-knn_model = KNeighborsClassifier()
-
-#Initialize GridSearchCV with the KNN classifier and parameter grid
-grid_search = GridSearchCV(estimator=knn_model, param_grid=param_grid, cv=5)
-
-#Fit the grid search to the training data
+knn = KNeighborsClassifier()
+grid_search = GridSearchCV(knn, param_grid, cv=5)
 grid_search.fit(X_train, y_train)
 
-#Print the best parameters found by grid search
-print("Best Parameters:", grid_search.best_params_)
+print("\nBest hyperparameters found:")
+print(grid_search.best_params_)
 
-#Get the best KNN model
 best_knn_model = grid_search.best_estimator_
+best_knn_model.fit(X_train, y_train)
+
+y_pred_best_knn = best_knn_model.predict(X_test)
+
+evaluate_model(y_test, y_pred_best_knn, "Best KNN (GridSearch)")
 
 
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+# 7. Confusion Matrix and Classification Report for Best KNN
+conf_matrix = confusion_matrix(y_test, y_pred_best_knn)
+print("\nClassification Report for Best KNN:")
+print(classification_report(y_test, y_pred_best_knn))
 
-#Make predictions on the test set
-y_pred = knn_model.predict(X_test)
-
-#Calculate accuracy
-accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
-
-#Generate and print classification report
-report = classification_report(y_test, y_pred)
-print("Classification Report:")
-print(report)
-
-#Generate and print confusion matrix
-conf_matrix = confusion_matrix(y_test, y_pred)
-print("Confusion Matrix:")
-print(conf_matrix)
-import seaborn as sns
-
-#Plot confusion matrix
 plt.figure(figsize=(8, 6))
 sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False)
-plt.title('Confusion Matrix For KNN')
+plt.title('Confusion Matrix - Best KNN')
 plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
 plt.tight_layout()
