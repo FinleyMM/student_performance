@@ -1,0 +1,12 @@
+# 7. Confusion Matrix and Classification Report for Best KNN
+conf_matrix = confusion_matrix(y_test, y_pred_best_knn)
+print("\nClassification Report for Best KNN:")
+print(classification_report(y_test, y_pred_best_knn))
+
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False)
+plt.title('Confusion Matrix - Best KNN')
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.tight_layout()
+plt.show()
