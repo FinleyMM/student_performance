@@ -1,70 +1,34 @@
-#import dataset and name accordingly 
-
 # 1. Imports
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    classification_report, confusion_matrix, roc_curve, roc_auc_score
+)
 from matplotlib.colors import ListedColormap
 
+# 2. Load and Prepare Data
+# data = pd.read_csv('your_dataset)
+# Example: data['G3'] = (data['G3'] >= 10).astype(int)
 
-# 2. Data Preparation
-# Split data into features (X) and target (y)
-X = data[['G1', 'G2']]  # Use relevant columns
+X = data[['G1', 'G2']]
 y = data['G3']
 
-# Scale features
+# Train-test split, then scale
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-# Split into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-
-
-# 3. KNN Model Training and Decision Boundary Plotting
-knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)
-knn_model.fit(X_train, y_train)
-
-# Plot decision boundary
-x_min, x_max = X_scaled[:, 0].min() - 1, X_scaled[:, 0].max() + 1
-y_min, y_max = X_scaled[:, 1].min() - 1, X_scaled[:, 1].max() + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.1), np.arange(y_min, y_max, 0.1))
-
-Z = knn_model.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
-
-cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
-cmap_bold = ListedColormap(['#FF0000', '#00FF00', '#0000FF'])
-
-plt.figure(figsize=(10, 8))
-plt.contourf(xx, yy, Z, cmap=cmap_light, alpha=0.8)
-plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap=cmap_bold, edgecolors='k', s=60, label='Training Data')
-plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap=cmap_bold, edgecolors='k', marker='x', s=100, label='Testing Data')
-
-plt.xlabel('G1')
-plt.ylabel('G2')
-plt.title('KNN Decision Boundary')
-plt.colorbar(label='G3')
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-
-# 4. Train and Evaluate KNN and SVM Models
-# Train SVM model
-svm_model = SVC(kernel='rbf', gamma=0.1, C=10)
-svm_model.fit(X_train, y_train)
-
-# Make predictions
-y_pred_knn = knn_model.predict(X_test)
-y_pred_svm = svm_model.predict(X_test)
-
-# Evaluation metrics function
+# 3. Evaluation Function
 def evaluate_model(y_true, y_pred, model_name):
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred, average='weighted')
@@ -77,60 +41,65 @@ def evaluate_model(y_true, y_pred, model_name):
     print(f"F1 Score: {f1:.4f}")
     return accuracy, precision, recall, f1
 
+# 4. KNN Model
+knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)
+knn_model.fit(X_train, y_train)
+y_pred_knn = knn_model.predict(X_test)
 knn_metrics = evaluate_model(y_test, y_pred_knn, "KNN")
+
+# 5. SVM Model
+svm_model = SVC(kernel='rbf', gamma=0.1, C=10)
+svm_model.fit(X_train, y_train)
+y_pred_svm = svm_model.predict(X_test)
 svm_metrics = evaluate_model(y_test, y_pred_svm, "SVM")
 
+# 6. Random Forest Model
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
+rf_metrics = evaluate_model(y_test, y_pred_rf, "Random Forest")
 
-# 5. Performance Comparison Bar Plot
+# 7. Performance Comparison Plot
 metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
-knn_values = knn_metrics
-svm_values = svm_metrics
+all_metrics = [knn_metrics, svm_metrics, rf_metrics]
+models = ['KNN', 'SVM', 'Random Forest']
+colors = ['red', 'navy', 'green']
+bar_width = 0.25
 
-plt.figure(figsize=(10, 6))
-bar_width = 0.35
-
-plt.bar(np.arange(len(metrics)), knn_values, bar_width, color='red', alpha=0.6, label='KNN')
-plt.bar(np.arange(len(metrics)) + bar_width, svm_values, bar_width, color='navy', alpha=0.6, label='SVM')
-
-for i, value in enumerate(knn_values):
-    plt.text(i, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
-for i, value in enumerate(svm_values):
-    plt.text(i + bar_width, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
+plt.figure(figsize=(12, 6))
+for i, values in enumerate(all_metrics):
+    plt.bar(np.arange(len(metrics)) + i * bar_width, values, bar_width,
+            alpha=0.6, label=models[i], color=colors[i])
+    for j, value in enumerate(values):
+        plt.text(j + i * bar_width, value + 0.02, f"{value:.2f}", ha='center')
 
 plt.xlabel('Metrics')
 plt.ylabel('Score')
-plt.title('KNN vs SVM Performance Comparison')
-plt.xticks(np.arange(len(metrics)) + bar_width / 2, metrics)
+plt.title('Model Performance Comparison')
+plt.xticks(np.arange(len(metrics)) + bar_width, metrics)
 plt.ylim(0, 1)
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.show()
 
-
-# 6. Hyperparameter Tuning with Grid Search for KNN
+# 8. Hyperparameter Tuning for KNN
 param_grid = {
     'n_neighbors': [3, 5, 7, 9],
     'weights': ['uniform', 'distance'],
     'p': [1, 2]
 }
-
 knn = KNeighborsClassifier()
 grid_search = GridSearchCV(knn, param_grid, cv=5)
 grid_search.fit(X_train, y_train)
-
 print("\nBest hyperparameters found:")
 print(grid_search.best_params_)
 
 best_knn_model = grid_search.best_estimator_
-best_knn_model.fit(X_train, y_train)
-
 y_pred_best_knn = best_knn_model.predict(X_test)
-
 evaluate_model(y_test, y_pred_best_knn, "Best KNN (GridSearch)")
 
-
-# 7. Confusion Matrix and Classification Report for Best KNN
+# 9. Confusion Matrix for Best KNN
 conf_matrix = confusion_matrix(y_test, y_pred_best_knn)
 print("\nClassification Report for Best KNN:")
 print(classification_report(y_test, y_pred_best_knn))
@@ -142,3 +111,22 @@ plt.xlabel('Predicted Labels')
 plt.ylabel('True Labels')
 plt.tight_layout()
 plt.show()
+
+# 10. ROC Curve for Random Forest (binary only)
+if len(np.unique(y_test)) == 2:
+    y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
+    fpr, tpr, thresholds = roc_curve(y_test, y_prob_rf)
+    roc_auc = roc_auc_score(y_test, y_prob_rf)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curve - Random Forest')
+    plt.legend(loc="lower right")
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.show()
+else:
+    print("ROC Curve skipped: Multiclass detected. Consider using one-vs-rest approach.")
