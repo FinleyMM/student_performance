@@ -1,4 +1,15 @@
-# 1. Imports
+"""
+Student Grade Prediction using KNN, SVM, and Random Forest
+
+- Feature scaling and model evaluation
+- Hyperparameter tuning with GridSearchCV
+- Performance comparison with visualisation
+- Confusion matrix and ROC curve for best models
+
+Author: Finley Michael Mbella
+"""
+
+# Imports 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,120 +24,120 @@ from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     classification_report, confusion_matrix, roc_curve, roc_auc_score
 )
-from matplotlib.colors import ListedColormap
 
-# 2. Load and Prepare Data
-# data = pd.read_csv('your_dataset)
-# Example: data['G3'] = (data['G3'] >= 10).astype(int)
+# Load & Prepare Data 
+# Replace with your actual data file
+# data = pd.read_csv('student-math.csv')
+# Example transformation: data['G3'] = (data['G3'] >= 10).astype(int)
 
-X = data[['G1', 'G2']]
-y = data['G3']
+X = data[['G1', 'G2']]  # Input features: first two grading periods
+y = data['G3']          # Target: final grade (can be binarised if needed)
 
-# Train-test split, then scale
+# Train-test split and feature scaling
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# 3. Evaluation Function
+# Evaluation Helper
 def evaluate_model(y_true, y_pred, model_name):
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred, average='weighted')
     recall = recall_score(y_true, y_pred, average='weighted')
     f1 = f1_score(y_true, y_pred, average='weighted')
     print(f"\n{model_name} Performance:")
-    print(f"Accuracy: {accuracy:.4f}")
+    print(f"Accuracy:  {accuracy:.4f}")
     print(f"Precision: {precision:.4f}")
-    print(f"Recall: {recall:.4f}")
-    print(f"F1 Score: {f1:.4f}")
+    print(f"Recall:    {recall:.4f}")
+    print(f"F1 Score:  {f1:.4f}")
     return accuracy, precision, recall, f1
 
-# 4. KNN Model
+# Model 1: K-Nearest Neighbours
 knn_model = KNeighborsClassifier(n_neighbors=7, weights='distance', p=2)
 knn_model.fit(X_train, y_train)
 y_pred_knn = knn_model.predict(X_test)
-knn_metrics = evaluate_model(y_test, y_pred_knn, "KNN")
+knn_metrics = evaluate_model(y_test, y_pred_knn, "K-Nearest Neighbours")
 
-# 5. SVM Model
+# Model 2: Support Vector Machine
 svm_model = SVC(kernel='rbf', gamma=0.1, C=10)
 svm_model.fit(X_train, y_train)
 y_pred_svm = svm_model.predict(X_test)
-svm_metrics = evaluate_model(y_test, y_pred_svm, "SVM")
+svm_metrics = evaluate_model(y_test, y_pred_svm, "Support Vector Machine")
 
-# 6. Random Forest Model
+# Model 3: Random Forest
 rf_model = RandomForestClassifier(n_estimators=100, random_state=42)
 rf_model.fit(X_train, y_train)
 y_pred_rf = rf_model.predict(X_test)
 rf_metrics = evaluate_model(y_test, y_pred_rf, "Random Forest")
 
-# 7. Performance Comparison Plot
+# Visualise Model Performance
 metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
-all_metrics = [knn_metrics, svm_metrics, rf_metrics]
-models = ['KNN', 'SVM', 'Random Forest']
-colors = ['red', 'navy', 'green']
+model_names = ['KNN', 'SVM', 'Random Forest']
+results = [knn_metrics, svm_metrics, rf_metrics]
+colors = ['#e74c3c', '#3498db', '#2ecc71']
 bar_width = 0.25
 
-plt.figure(figsize=(12, 6))
-for i, values in enumerate(all_metrics):
-    plt.bar(np.arange(len(metrics)) + i * bar_width, values, bar_width,
-            alpha=0.6, label=models[i], color=colors[i])
-    for j, value in enumerate(values):
-        plt.text(j + i * bar_width, value + 0.02, f"{value:.2f}", ha='center')
+plt.figure(figsize=(10, 6))
+for i, scores in enumerate(results):
+    plt.bar(np.arange(len(metrics)) + i * bar_width, scores, width=bar_width,
+            label=model_names[i], color=colors[i], alpha=0.7)
+    for j, score in enumerate(scores):
+        plt.text(j + i * bar_width, score + 0.02, f"{score:.2f}", ha='center', fontsize=9)
 
-plt.xlabel('Metrics')
+plt.xticks(np.arange(len(metrics)) + bar_width, metrics)
 plt.ylabel('Score')
 plt.title('Model Performance Comparison')
-plt.xticks(np.arange(len(metrics)) + bar_width, metrics)
-plt.ylim(0, 1)
+plt.ylim(0, 1.1)
 plt.legend()
-plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.grid(axis='y', linestyle='--', alpha=0.4)
 plt.tight_layout()
 plt.show()
 
-# 8. Hyperparameter Tuning for KNN
+# Hyperparameter Tuning for KNN
 param_grid = {
     'n_neighbors': [3, 5, 7, 9],
     'weights': ['uniform', 'distance'],
     'p': [1, 2]
 }
-knn = KNeighborsClassifier()
-grid_search = GridSearchCV(knn, param_grid, cv=5)
+
+grid_search = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
 grid_search.fit(X_train, y_train)
-print("\nBest hyperparameters found:")
+
+print("\nBest KNN Hyperparameters:")
 print(grid_search.best_params_)
 
-best_knn_model = grid_search.best_estimator_
-y_pred_best_knn = best_knn_model.predict(X_test)
-evaluate_model(y_test, y_pred_best_knn, "Best KNN (GridSearch)")
+best_knn = grid_search.best_estimator_
+y_pred_best_knn = best_knn.predict(X_test)
+evaluate_model(y_test, y_pred_best_knn, "Tuned KNN")
 
-# 9. Confusion Matrix for Best KNN
+# Confusion Matrix for Best KNN
 conf_matrix = confusion_matrix(y_test, y_pred_best_knn)
-print("\nClassification Report for Best KNN:")
+print("\nClassification Report (Best KNN):")
 print(classification_report(y_test, y_pred_best_knn))
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(6, 5))
 sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False)
-plt.title('Confusion Matrix - Best KNN')
-plt.xlabel('Predicted Labels')
-plt.ylabel('True Labels')
+plt.title('Confusion Matrix – Tuned KNN')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
 plt.tight_layout()
 plt.show()
 
-# 10. ROC Curve for Random Forest (binary only)
+# ROC Curve for Random Forest (Binary Only) 
 if len(np.unique(y_test)) == 2:
-    y_prob_rf = rf_model.predict_proba(X_test)[:, 1]
-    fpr, tpr, thresholds = roc_curve(y_test, y_prob_rf)
-    roc_auc = roc_auc_score(y_test, y_prob_rf)
+    y_proba_rf = rf_model.predict_proba(X_test)[:, 1]
+    fpr, tpr, _ = roc_curve(y_test, y_proba_rf)
+    auc_score = roc_auc_score(y_test, y_proba_rf)
 
-    plt.figure(figsize=(8, 6))
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.figure(figsize=(7, 5))
+    plt.plot(fpr, tpr, label=f"AUC = {auc_score:.2f}", color='darkorange')
+    plt.plot([0, 1], [0, 1], linestyle='--', color='grey')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve - Random Forest')
-    plt.legend(loc="lower right")
-    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.title('ROC Curve – Random Forest')
+    plt.legend(loc='lower right')
+    plt.grid(alpha=0.4)
     plt.tight_layout()
     plt.show()
 else:
-    print("ROC Curve skipped: Multiclass detected. Consider using one-vs-rest approach.")
+    print("\nROC Curve skipped: Multiclass classification detected.")
