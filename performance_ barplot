@@ -1,0 +1,26 @@
+5. Performance Comparison Bar Plot
+metrics = ['Accuracy', 'Precision', 'Recall', 'F1 Score']
+knn_values = knn_metrics
+svm_values = svm_metrics
+
+plt.figure(figsize=(10, 6))
+bar_width = 0.35
+
+plt.bar(np.arange(len(metrics)), knn_values, bar_width, color='red', alpha=0.6, label='KNN')
+plt.bar(np.arange(len(metrics)) + bar_width, svm_values, bar_width, color='navy', alpha=0.6, label='SVM')
+
+for i, value in enumerate(knn_values):
+    plt.text(i, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
+for i, value in enumerate(svm_values):
+    plt.text(i + bar_width, value + 0.02, f"{value:.2f}", ha='center', va='bottom')
+
+plt.xlabel('Metrics')
+plt.ylabel('Score')
+plt.title('KNN vs SVM Performance Comparison')
+plt.xticks(np.arange(len(metrics)) + bar_width / 2, metrics)
+plt.ylim(0, 1)
+plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+
