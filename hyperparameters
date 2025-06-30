@@ -1,0 +1,21 @@
+# 6. Hyperparameter Tuning with Grid Search for KNN
+param_grid = {
+    'n_neighbors': [3, 5, 7, 9],
+    'weights': ['uniform', 'distance'],
+    'p': [1, 2]
+}
+
+knn = KNeighborsClassifier()
+grid_search = GridSearchCV(knn, param_grid, cv=5)
+grid_search.fit(X_train, y_train)
+
+print("\nBest hyperparameters found:")
+print(grid_search.best_params_)
+
+best_knn_model = grid_search.best_estimator_
+best_knn_model.fit(X_train, y_train)
+
+y_pred_best_knn = best_knn_model.predict(X_test)
+
+evaluate_model(y_test, y_pred_best_knn, "Best KNN (GridSearch)")
+
